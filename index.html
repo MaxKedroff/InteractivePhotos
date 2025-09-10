@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Классификация посуды</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet">
+</head>
+<body style="font-family: 'Montserrat', sans-serif; background-color: #FEF4EB; color: #333; padding: 20px; min-height: 100vh; display: flex; justify-content: center; align-items: center; margin: 0;">
+    <!-- Контейнер загрузки -->
+    <div id="loading-container" style="text-align: center; padding: 40px;">
+        <div style="width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid #3498db; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px;"></div>
+        <p>Загрузка изображений...</p>
+    </div>
+    
+    <!-- Основной контейнер игры (изначально скрыт) -->
+    <div id="game-container" style="display: none; max-width: 900px; margin: 0 auto; padding: 20px;">
+        <!-- Прогресс-бар -->
+        <div style="text-align: center; margin-bottom: 30px;">
+            <div id="progress-label" style="margin-bottom: 5px; font-weight: 600; font-size: 14px;">1/13 вопросов</div>
+            <div style="width: 100%; height: 10px; background: #e0e0e0; border-radius: 5px; overflow: hidden; margin-bottom: 10px;">
+                <div id="progress-bar" style="height: 10px; width: 0%; background: rgb(46, 204, 113); transition: width 0.5s ease;"></div>
+            </div>
+            <div style="font-size: 1em; margin-top: 10px; font-weight: 600; display: none;">Правильно: <span id="score">0</span>/<span id="total">13</span></div>
+        </div>
+
+        <!-- Карточка с изображением -->
+        <div style="width: 100%; margin: 40px auto; text-align: center; perspective: 1000px;">
+            <div id="card" style="background: white; padding: 20px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); transition: all 0.3s ease; border: 3px solid transparent; margin: 0 auto; max-width: 400px; min-height: 300px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                <!-- Изображение и название будут добавляться через JavaScript -->
+            </div>
+        </div>
+
+        <!-- Кнопки выбора -->
+        <div style="display: flex; justify-content: center; gap: 40px; flex-wrap: wrap; margin-top: 40px;">
+            <div id="tableware-btn" style="width: 200px; height: 100px; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; color: white; cursor: pointer; padding: 10px; transition: all 0.3s ease; box-shadow: 0 4px 8px rgba(0,0,0,0.1); background: #689948;">Столовая посуда</div>
+            <div id="kitchenware-btn" style="width: 200px; height: 100px; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; color: white; cursor: pointer; padding: 10px; transition: all 0.3s ease; box-shadow: 0 4px 8px rgba(0,0,0,0.1); background: #FC7253;">Кухонная посуда</div>
+        </div>
+        
+        <!-- Результаты -->
+        <div id="result-container" style="text-align: center; margin-top: 30px; display: none;">
+            <h2 style="margin-bottom: 20px; color: #333;">Поздравляем! Вы завершили задание</h2>
+            <p>Ваш результат: <span id="final-score">0</span> из <span id="final-total">13</span></p>
+            <button onclick="restartQuiz()" style="background: #3498db; color: white; border: none; padding: 12px 25px; border-radius: 25px; font-family: 'Montserrat', sans-serif; font-weight: 600; cursor: pointer; margin-top: 20px; transition: all 0.3s ease;">Начать заново</button>
+        </div>
+    </div>
+
+    <!-- Скрытые изображения для предзагрузки -->
+    <div id="preload-images" style="display: none;">
+        <img src="https://drive.google.com/thumbnail?id=1LYHHzroOxweTg7AnvZ_EYQZjlFn5hN6x&sz=w400" alt="Чайное блюдце">
+        <img src="https://drive.google.com/thumbnail?id=1tW7544e5_Uk70FiV3d7HFWLMQoUZ3c86&sz=w400" alt="Тарелка для каши">
+        <img src="https://drive.google.com/thumbnail?id=1CPBApwenMCQ5j_YacupYxk6CPsS0fl7y&sz=w400" alt="Чайник для гостей">
+        <img src="https://drive.google.com/thumbnail?id=1HtcEDOrWbK0wSSBObuMQrcVG2yL2CLEA&sz=w400" alt="Молочник">
+        <img src="https://drive.google.com/thumbnail?id=1DW0m9AkCwYIe5MC_AxxMcBM-5gho3ahV&sz=w400" alt="Чайная кружка">
+        <img src="https://drive.google.com/thumbnail?id=1lG-ZIIe5FE4GkqWvqMwA5IzNT25gldH6&sz=w400" alt="Вилка и нож для гостей">
+        <img src="https://drive.google.com/thumbnail?id=1CQ9nTHXUg0nutisWuEzkjOwOeIGepgfM&sz=w400" alt="Питчеры">
+        <img src="https://drive.google.com/thumbnail?id=1LY3Uc4WIG8D0NWeysvVtVF_ppiHciccA&sz=w400" alt="Барная ложка">
+        <img src="https://drive.google.com/thumbnail?id=1hO5skTVR7Oa1OrEEiQhVo_uc5shlTr-L&sz=w400" alt="Ложка для мороженого">
+        <img src="https://drive.google.com/thumbnail?id=1hsEpaTxcRrUK17vZIKU6NZDggIjYulj0&sz=w400" alt="Колба для блендера">
+        <img src="https://drive.google.com/thumbnail?id=1GkmBBGxy2Ca0mfXPZzNXUgmVre7L0wvJ&sz=w400" alt="Мадлер">
+        <img src="https://drive.google.com/thumbnail?id=1GkmBBGxy2Ca0mfXPZzNXUgmVre7L0wvJ&sz=w400" alt="Сито для процеживания">
+        <img src="https://drive.google.com/thumbnail?id=1FUqexuE-Xp4IKUFGz8LtpW_TxJ-GVJTx&sz=w400" alt="Контейнер">
+    </div>
+
+    <script>
+        // Массив с данными о посуде
+        const items = [
+            {
+                name: "Чайное блюдце",
+                image: "https://drive.google.com/thumbnail?id=1LYHHzroOxweTg7AnvZ_EYQZjlFn5hN6x&sz=w400",
+                category: "tableware"
+            },
+            {
+                name: "Тарелка для каши",
+                image: "https://drive.google.com/thumbnail?id=1tW7544e5_Uk70FiV3d7HFWLMQoUZ3c86&sz=w400",
+                category: "tableware"
+            },
+            {
+                name: "Чайник для гостей",
+                image: "https://drive.google.com/thumbnail?id=1CPBApwenMCQ5j_YacupYxk6CPsS0fl7y&sz=w400",
+                category: "tableware"
+            },
+            {
+                name: "Молочник",
+                image: "https://drive.google.com/thumbnail?id=1HtcEDOrWbK0wSSBObuMQrcVG2yL2CLEA&sz=w400",
+                category: "tableware"
+            },
+            {
+                name: "Чайная кружка",
+                image: "https://drive.google.com/thumbnail?id=1DW0m9AkCwYIe5MC_AxxMcBM-5gho3ahV&sz=w400",
+                category: "tableware"
+            },
+            {
+                name: "Вилка и нож для гостей",
+                image: "https://drive.google.com/thumbnail?id=1lG-ZIIe5FE4GkqWvqMwA5IzNT25gldH6&sz=w400",
+                category: "tableware"
+            },
+            {
+                name: "Питчеры",
+                image: "https://drive.google.com/thumbnail?id=1CQ9nTHXUg0nutisWuEzkjOwOeIGepgfM&sz=w400",
+                category: "kitchenware"
+            },
+            {
+                name: "Барная ложка",
+                image: "https://drive.google.com/thumbnail?id=1LY3Uc4WIG8D0NWeysvVtVF_ppiHciccA&sz=w400",
+                category: "kitchenware"
+            },
+            {
+                name: "Ложка для мороженого",
+                image: "https://drive.google.com/thumbnail?id=1hO5skTVR7Oa1OrEEiQhVo_uc5shlTr-L&sz=w400",
+                category: "kitchenware"
+            },
+            {
+                name: "Колба для блендера",
+                image: "https://drive.google.com/thumbnail?id=1hsEpaTxcRrUK17vZIKU6NZDggIjYulj0&sz=w400",
+                category: "kitchenware"
+            },
+            {
+                name: "Мадлер",
+                image: "https://drive.google.com/thumbnail?id=1GkmBBGxy2Ca0mfXPZzNXUgmVre7L0wvJ&sz=w400",
+                category: "kitchenware"
+            },
+            {
+                name: "Сито для процеживания",
+                image: "https://drive.google.com/thumbnail?id=1GkmBBGxy2Ca0mfXPZzNXUgmVre7L0wvJ&sz=w400",
+                category: "kitchenware"
+            },
+            {
+                name: "Контейнер",
+                image: "https://drive.google.com/thumbnail?id=1FUqexuE-Xp4IKUFGz8LtpW_TxJ-GVJTx&sz=w400",
+                category: "kitchenware"
+            }
+        ];
+
+        let currentIndex = 0;
+        let score = 0;
+        let imagesLoaded = 0;
+        const totalImages = items.length;
+        const card = document.getElementById('card');
+        const progressLabel = document.getElementById('progress-label');
+        const progressBar = document.getElementById('progress-bar');
+        const scoreText = document.getElementById('score');
+        const totalText = document.getElementById('total');
+        const resultContainer = document.getElementById('result-container');
+        const finalScore = document.getElementById('final-score');
+        const finalTotal = document.getElementById('final-total');
+        const loadingContainer = document.getElementById('loading-container');
+        const gameContainer = document.getElementById('game-container');
+        
+        // Функция предзагрузки изображений
+        function preloadImages() {
+            const preloadContainer = document.getElementById('preload-images');
+            const images = preloadContainer.getElementsByTagName('img');
+            
+            for (let i = 0; i < images.length; i++) {
+                const img = new Image();
+                img.onload = imageLoaded;
+                img.onerror = imageLoaded; // Учитываем даже если изображение не загрузилось
+                img.src = images[i].src;
+            }
+        }
+        
+        // Счетчик загруженных изображений
+        function imageLoaded() {
+            imagesLoaded++;
+            
+            if (imagesLoaded === totalImages) {
+                // Все изображения загружены, показываем игру
+                setTimeout(() => {
+                    loadingContainer.style.display = 'none';
+                    gameContainer.style.display = 'block';
+                    startGame();
+                }, 500);
+            }
+        }
+        
+        // Начинаем игру после загрузки изображений
+        function startGame() {
+            // Перемешиваем массив для случайного порядка вопросов
+            items.sort(() => Math.random() - 0.5);
+            
+            totalText.textContent = items.length;
+            finalTotal.textContent = items.length;
+            
+            // Загрузка текущего элемента
+            loadItem();
+            
+            // Обработчики для кнопок
+            document.getElementById('tableware-btn').addEventListener('click', () => {
+                checkAnswer('tableware');
+            });
+            
+            document.getElementById('kitchenware-btn').addEventListener('click', () => {
+                checkAnswer('kitchenware');
+            });
+        }
+        
+        // Загрузка текущего элемента
+        function loadItem() {
+            if (currentIndex >= items.length) {
+                // Показываем результаты
+                finalScore.textContent = score;
+                resultContainer.style.display = 'block';
+                document.querySelector('[style*="display: flex; justify-content: center; gap: 40px; flex-wrap: wrap; margin-top: 40px;"]').style.display = 'none';
+                document.querySelector('[style*="width: 100%; margin: 40px auto; text-align: center; perspective: 1000px;"]').style.display = 'none';
+                return;
+            }
+            
+            const item = items[currentIndex];
+            
+            // Очищаем карточку и добавляем новое содержимое
+            card.innerHTML = `
+                <img src="${item.image}" alt="${item.name}" style="max-width: 100%; max-height: 200px; object-fit: contain; margin-bottom: 15px;">
+                <div style="font-weight: 600; font-size: 16px; text-align: center;">${item.name}</div>
+            `;
+            
+            card.style.borderColor = 'transparent';
+            card.style.background = 'white';
+            scoreText.textContent = score;
+            progressLabel.textContent = `${currentIndex + 1}/${items.length} вопросов`;
+            progressBar.style.width = `${(currentIndex / items.length) * 100}%`;
+        }
+
+        // Проверка ответа
+        function checkAnswer(selectedCategory) {
+            const correctCategory = items[currentIndex].category;
+            
+            if (selectedCategory === correctCategory) {
+                card.style.borderColor = '#2ecc71';
+                card.style.background = '#e8f6ef';
+                score++;
+                setTimeout(() => {
+                    currentIndex++;
+                    loadItem();
+                }, 800);
+            } else {
+                card.style.borderColor = '#e74c3c';
+                card.style.background = '#fdedec';
+                // Анимация встряски
+                let shakeCount = 0;
+                const shakeInterval = setInterval(() => {
+                    card.style.transform = `translateX(${shakeCount % 2 === 0 ? -5 : 5}px)`;
+                    shakeCount++;
+                    if (shakeCount > 6) {
+                        clearInterval(shakeInterval);
+                        card.style.transform = 'translateX(0)';
+                        card.style.borderColor = 'transparent';
+                        card.style.background = 'white';
+                    }
+                }, 50);
+            }
+        }
+
+        // Перезапуск викторины
+        function restartQuiz() {
+            currentIndex = 0;
+            score = 0;
+            resultContainer.style.display = 'none';
+            document.querySelector('[style*="display: flex; justify-content: center; gap: 40px; flex-wrap: wrap; margin-top: 40px;"]').style.display = 'flex';
+            document.querySelector('[style*="width: 100%; margin: 40px auto; text-align: center; perspective: 1000px;"]').style.display = 'block';
+            
+            // Перемешиваем массив снова
+            items.sort(() => Math.random() - 0.5);
+            
+            loadItem();
+        }
+
+        // Начинаем предзагрузку изображений при загрузке страницы
+        window.onload = preloadImages;
+    </script>
+
+    <style>
+        /* Анимация спиннера */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</body>
+</html>
