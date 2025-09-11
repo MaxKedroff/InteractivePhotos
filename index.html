@@ -114,11 +114,10 @@
             <div id="kitchenware-btn">Кухонная посуда</div>
         </div>
         
-        <!-- Результаты -->
-        <div id="result-container" style="text-align: center; margin-top: 30px; display: none;">
-            <h2 style="margin-bottom: 20px; color: #333;">Поздравляем! Вы завершили задание</h2>
-            <p>Ваш результат: <span id="final-score">0</span> из <span id="final-total">13</span></p>
-            <button onclick="restartQuiz()" style="background: #3498db; color: white; border: none; padding: 12px 25px; border-radius: 25px; font-family: 'Montserrat', sans-serif; font-weight: 600; cursor: pointer; margin-top: 20px; transition: all 0.3s ease;">Начать заново</button>
+        <!-- Сообщение о завершении (скрыто изначально) -->
+        <div id="completion-message" style="text-align: center; margin-top: 30px; display: none;">
+            <h2 style="margin-bottom: 20px; color: #333;">Задание завершено!</h2>
+            <p>Теперь вы знаете, как классифицировать посуду. Переходите к изучению правил работы с посудой.</p>
         </div>
     </div>
 
@@ -218,11 +217,10 @@
         const progressBar = document.getElementById('progress-bar');
         const scoreText = document.getElementById('score');
         const totalText = document.getElementById('total');
-        const resultContainer = document.getElementById('result-container');
-        const finalScore = document.getElementById('final-score');
-        const finalTotal = document.getElementById('final-total');
+        const completionMessage = document.getElementById('completion-message');
         const loadingContainer = document.getElementById('loading-container');
         const gameContainer = document.getElementById('game-container');
+        const buttonsContainer = document.querySelector('.buttons-container');
         
         // Функция предзагрузки изображений
         function preloadImages() {
@@ -257,7 +255,6 @@
             items.sort(() => Math.random() - 0.5);
             
             totalText.textContent = items.length;
-            finalTotal.textContent = items.length;
             
             // Загрузка текущего элемента
             loadItem();
@@ -275,11 +272,8 @@
         // Загрузка текущего элемента
         function loadItem() {
             if (currentIndex >= items.length) {
-                // Показываем результаты
-                finalScore.textContent = score;
-                resultContainer.style.display = 'block';
-                document.querySelector('.buttons-container').style.display = 'none';
-                document.querySelector('[style*="width: 100%; margin: 40px auto; text-align: center; perspective: 1000px;"]').style.display = 'none';
+                // Все вопросы пройдены, показываем сообщение о завершении
+                showCompletionMessage();
                 return;
             }
             
@@ -328,18 +322,27 @@
             }
         }
 
-        // Перезапуск викторины
-        function restartQuiz() {
-            currentIndex = 0;
-            score = 0;
-            resultContainer.style.display = 'none';
-            document.querySelector('.buttons-container').style.display = 'flex';
-            document.querySelector('[style*="width: 100%; margin: 40px auto; text-align: center; perspective: 1000px;"]').style.display = 'block';
+        // Показать сообщение о завершении
+        function showCompletionMessage() {
+            // Скрываем элементы игры
+            card.style.display = 'none';
+            buttonsContainer.style.display = 'none';
+            document.querySelector('[style*="width: 100%; margin: 40px auto; text-align: center; perspective: 1000px;"]').style.display = 'none';
             
-            // Перемешиваем массив снова
-            items.sort(() => Math.random() - 0.5);
+            // Показываем сообщение о завершении
+            completionMessage.style.display = 'block';
             
-            loadItem();
+            // Отправляем сообщение родительскому окну о завершении
+            if (window.parent !== window) {
+                window.parent.postMessage({
+                    type: 'interactiveCompleted',
+                    source: 'tableware-classification'
+                }, '*');
+            }
+            
+            // Обновляем прогресс-бар до 100%
+            progressBar.style.width = '100%';
+            progressLabel.textContent = `Задание завершено!`;
         }
 
         // Начинаем предзагрузку изображений при загрузке страницы
